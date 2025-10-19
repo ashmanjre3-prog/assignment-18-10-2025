@@ -8,7 +8,7 @@ import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 import { IoIosArrowForward } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
 import { GoPencil } from "react-icons/go";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Toast from "./Toast/Toast";
 import { IoMdCall } from "react-icons/io";
 import { MdEmail } from "react-icons/md";
@@ -17,8 +17,22 @@ import { FaAngleUp } from "react-icons/fa";
 import Navbar from "./Navbar/Navbar";
 import axios from "axios";
 
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import HomeIcon from "@mui/icons-material/Home";
+import SearchIcon from "@mui/icons-material/Search";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import ErrorIcon from "@mui/icons-material/Error";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers } from "./redux/userSlices/listAllUsers";
+import { Button, IconButton, Tooltip } from "@mui/material";
 
 const master = [
   { label: "Company Master", path: "/companyMaster" },
@@ -118,27 +132,191 @@ const Dashboard = () => {
     }
   };
 
+  const navigate = useNavigate();
+
+  const handleNavigation = (id) => {
+    console.log("id is:", id);
+
+    navigate(`user/${id}`);
+  };
+
+  const loadingCard = () => (
+    <Button
+      loading
+      loadingPosition="start"
+      startIcon={<SearchIcon />}
+      variant="outlined"
+      sx={{ bgcolor: "white" }}
+    >
+      Save
+    </Button>
+  );
+
+  const successCard = () => (
+    <TableContainer
+      component={Paper}
+      sx={{
+        borderRadius: 3,
+        marginTop: 2,
+        padding: 5,
+        boxShadow: "0px 2px 10px rgba(0,0,0,0.08)",
+        overflow: "hidden",
+      }}
+    >
+      <Table aria-label="user list table">
+        <TableHead
+          sx={{
+            backgroundColor: "#007B7F",
+            "& th": {
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "1rem",
+            },
+          }}
+        >
+          <TableRow>
+            <TableCell align="left">Name</TableCell>
+            <TableCell align="left">Email</TableCell>
+            <TableCell align="left">Company</TableCell>
+            <TableCell align="center">Action</TableCell>
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {list.map((row, index) => (
+            <TableRow
+              key={index}
+              sx={{
+                "&:last-child td, &:last-child th": { border: 0 },
+                "&:hover": {
+                  backgroundColor: "rgba(0, 123, 127, 0.1)",
+                  transition: "0.3s ease",
+                },
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#f9f9f9",
+              }}
+            >
+              <TableCell align="left" sx={{ fontWeight: 500 }}>
+                {row.name}
+              </TableCell>
+              <TableCell align="left">{row.email}</TableCell>
+              <TableCell align="left">{row.company.name}</TableCell>
+              <TableCell align="center">
+                <Tooltip title="View Profile">
+                  <IconButton
+                    onClick={() => handleNavigation(row.id)}
+                    sx={{
+                      color: "#007B7F",
+                      "&:hover": {
+                        backgroundColor: "rgba(0,123,127,0.1)",
+                      },
+                    }}
+                  >
+                    <VisibilityOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const errorCard = () => (
+    <main className="min-h-screen bg-gradient-to-br from-background via-background to-secondary flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        {/* Error Icon */}
+        <div className="flex justify-center mb-8">
+          <div className="relative">
+            <div className="absolute inset-0 bg-red-500/20 rounded-full blur-2xl" />
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-red-500/10 border-2 border-red-500/30">
+              <ErrorIcon className="h-12 w-12 text-red-500" />
+            </div>
+          </div>
+        </div>
+
+        {/* Error Card */}
+        <Card className="border-0 shadow-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border-b border-red-500/20 px-6 py-4">
+            <h1 className="text-3xl font-bold text-foreground">Oops!</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Something went wrong
+            </p>
+          </div>
+
+          <div className="p-8 space-y-6">
+            {/* Error Code */}
+            <div className="text-center">
+              <div className="inline-block px-4 py-2 bg-red-500/10 rounded-lg border border-red-500/20 mb-4">
+                <p className="text-sm font-mono text-red-600 font-semibold">
+                  Error {errorCode}
+                </p>
+              </div>
+              <h2 className="text-xl font-semibold text-foreground">
+                {errorMessage}
+              </h2>
+            </div>
+
+            {/* Error Details */}
+            <div className="bg-muted/50 rounded-lg p-4 border border-border">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                We encountered an issue while trying to load the user details.
+                This could be due to a temporary network issue or server
+                problem. Please try again or return to the dashboard.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3 pt-4">
+              {onRetry && (
+                <Button
+                  onClick={onRetry}
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground gap-2"
+                >
+                  <RefreshIcon className="h-4 w-4" />
+                  Try Again
+                </Button>
+              )}
+              <Button
+                onClick={() => router.push("/")}
+                variant="outline"
+                className="w-full gap-2"
+              >
+                <HomeIcon className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </div>
+
+            {/* Help Text */}
+            <div className="text-center pt-4 border-t border-border">
+              <p className="text-xs text-muted-foreground">
+                If the problem persists, please contact support or try again
+                later.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Decorative Elements */}
+        <div className="mt-8 flex justify-center gap-2">
+          <div className="h-1 w-1 rounded-full bg-accent/30" />
+          <div className="h-1 w-1 rounded-full bg-accent/50" />
+          <div className="h-1 w-1 rounded-full bg-accent/30" />
+        </div>
+      </div>
+    </main>
+  );
+
   return (
     <>
       <div className="min-h-screen heading-font select-none">
         <div className="drawer lg:drawer-open">
           <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-          <div className="drawer-content bg-base-300 min-h-screen w-full">
-            {/* Tenant List Content here */}
-            <label
-              htmlFor="my-drawer-2"
-              className="absolute top-0 left-0 py-5 px-4 drawer-button lg:hidden "
-            >
-              <div className="w-8 flex flex-col space-y-2">
-                <hr /> <hr /> <hr />
-              </div>
-            </label>
-            {toast && <Toast message={toast} />}
-
+          <div className="drawer-content  min-h-screen w-full">
             {/* Navbar */}
             <Navbar />
 
-            <div className="m-3 py-1 bg-white rounded-lg">
+            <div className="m-10 py-1 bg-white rounded-lg">
               <div className="flex flex-col md:flex-row justify-between px-4 pt-2">
                 <h1 className="text-[#272643] mb-3 md:mb-0 text-lg md:text-xl pt-2 font-bold">
                   Dashboard
@@ -147,21 +325,21 @@ const Dashboard = () => {
 
                 <div className="flex flex-col space-y-4 items-end md:flex-row md:space-x-2 md:space-y-0 md:items-center  relative">
                   {/* Input with search icon */}
-                  <label className="input input-md w-70">
+                  <div className="bg-black p-3  min-w-[20vw] flex items-center justify-between gap-2 rounded-sm">
                     <input
                       type="text"
-                      placeholder="Search for user name and email"
-                      className=""
+                      placeholder="Search by name and email...."
+                      className="outline-none font-medium"
                       onChange={(e) => setSearchInput(e.target.value)}
                       value={searchInput}
                     />
-                    <IoMdSearch className="cursor-pointer text-gray-400" />
-                  </label>
+                    <SearchIcon className="cursor-pointer text-gray-400" />
+                  </div>
 
                   {/*  company name dropdown */}
                   <select
                     onChange={handleDropdown}
-                    className="bg-black p-2 rounded-sm"
+                    className="bg-gray-500  text-black font-medium p-3 rounded-sm"
                   >
                     <option value="">Filter By Company Name</option>
                     {uniqueCompanyName.map((each, index) => (
@@ -170,198 +348,8 @@ const Dashboard = () => {
                       </option>
                     ))}
                   </select>
-                </div>
-              </div>
 
-              {/* New Table */}
-              <div className="p-4">
-                <div className="overflow-x-auto shadow-md border-[#AFC9F5] border-2">
-                  <table className="min-w-full divide-y divide-gray-200 border-[#AFC9F5]">
-                    <thead className="bg-blue-100">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs text-[#2C3E50] font-bold bg-[#AFC9F5] tracking-wider">
-                          Name
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs text-[#2C3E50] font-bold bg-[#AFC9F5] tracking-wider">
-                          Email
-                          <button className="cursor-pointer">
-                            <img
-                              src="/sort.png"
-                              className="w-3.5 mx-2"
-                              alt=""
-                            />
-                          </button>
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs text-[#2C3E50] font-bold bg-[#AFC9F5] tracking-wider">
-                          Company Name
-                          <button className="cursor-pointer">
-                            <img
-                              src="/sort.png"
-                              className="w-3.5 mx-2"
-                              alt=""
-                            />
-                          </button>
-                        </th>
-
-                        <th className="px-4 py-2 text-left text-xs text-[#2C3E50] font-bold bg-[#AFC9F5] tracking-wider">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {list
-                        .slice(page * 12 - 12, page * 12)
-                        .map((user, index) => (
-                          <tr
-                            key={index}
-                            className="hover:bg-[#D3D3D3] hover:text-[#667085] cursor-pointer"
-                          >
-                            <td className="px-4 py-2 whitespace-nowrap text-sm text-[#101828] hover:text-[#667085] border border-gray-200">
-                              {user?.name}
-                            </td>
-                            <td className="px-4 py-2 whitespace-nowrap flex gap-3 text-sm text-[#101828] hover:text-[#667085] border border-gray-200">
-                              <img
-                                src="/companylogoEg.png"
-                                alt=""
-                                className="w-6"
-                              />
-                              <span>{user?.email}</span>
-                            </td>
-                            <td className="px-4 py-2 whitespace-nowrap text-sm text-[#101828] hover:text-[#667085] border border-gray-200">
-                              {user?.company?.name}
-                            </td>
-
-                            <td className="px-4 py-2 whitespace-nowrap text-sm text-[#101828] flex gap-2">
-                              {/*  Update button */}
-                              <button
-                                className="text-[#615E83] cursor-pointer"
-                                onClick={() => {}}
-                              >
-                                <GoPencil />
-                              </button>
-
-                              {/* Delete button */}
-                              <button
-                                className="text-[#EB4335] cursor-pointer"
-                                onClick={() => {}}
-                              >
-                                <RiDeleteBin5Line />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            {listUsers.length > 0 && (
-              <div className="join absolute right-0 bottom-4 gap-2 px-10">
-                <button
-                  className={`join-item btn btn-sm text-white bg-blue-300 hover:bg-blue-400 ${
-                    page > 1 ? `` : `btn-disabled`
-                  }`}
-                  onClick={() => selectPageHandler(page - 1)}
-                >
-                  <IoIosArrowBack />
-                </button>
-                {Array.from(
-                  {
-                    length:
-                      Math.trunc(listUsers.length / 12) +
-                      (listUsers.length % 12 === 0 ? 0 : 1),
-                  },
-                  (_, i) => {
-                    return (
-                      <button
-                        onClick={() => selectPageHandler(i + 1)}
-                        key={i}
-                        className={`join-item btn btn-sm rounded-md ${
-                          page === i + 1 ? `border border-black` : ``
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    );
-                  }
-                )}
-                <button
-                  className={`join-item btn btn-sm text-white bg-blue-300 hover:bg-blue-400 ${
-                    page < listUsers.length / 12 ? `` : `btn-disabled`
-                  }`}
-                  onClick={() => selectPageHandler(page + 1)}
-                >
-                  <IoIosArrowForward />
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="drawer-side bg-white shadow-lg">
-            <label
-              htmlFor="my-drawer-2"
-              aria-label="close sidebar"
-              className="drawer-overlay"
-            ></label>
-            <div className="menu bg-base-200 text-base-content min-h-full w-[255px] p-4">
-              {/* Sidebar content here */}
-              <h1 className="text-center text-2xl logo-font">ASM</h1>
-              <div className="mt-6 flex flex-col space-y-4">
-                <h1 className="text-[#757575]">Dashboard</h1>
-                <div className={`w-52 font-sans text-[#757575]`}>
-                  <details open className="group">
-                    <summary className="cursor-pointer flex justify-between items-center list-none group-open:text-[#272643] group-open:font-bold">
-                      Masters
-                      <span className="transform transition-transform group-open:rotate-180">
-                        <FaAngleUp size={18} className="text-[#757575]" />
-                      </span>
-                    </summary>
-
-                    <div className="flex flex-col ml-4 mt-3 space-y-4">
-                      {master.map((item) => (
-                        <NavLink
-                          key={item.path}
-                          className={({ isActive }) =>
-                            `text-[#A3A0B0] ${
-                              isActive
-                                ? `bg-[#615E83] text-white px-2 rounded-full`
-                                : ``
-                            } px-2 rounded-full`
-                          }
-                          to={item.path}
-                        >
-                          {item.label}
-                        </NavLink>
-                      ))}
-                    </div>
-                  </details>
-                </div>
-                <div className={`w-52 font-sans text-[#757575]`}>
-                  <details closed="true" className="group">
-                    <summary className="cursor-pointer flex justify-between items-center list-none group-open:text-[#272643] group-open:font-bold">
-                      Subscription Management
-                      <span className="transform transition-transform group-open:rotate-180">
-                        <FaAngleUp size={18} className="text-[#757575]" />
-                      </span>
-                    </summary>
-
-                    <div className="flex flex-col ml-4 mt-3 space-y-4">
-                      {subscriptionManagement.map((item) => (
-                        <NavLink
-                          key={item.path}
-                          className={({ isActive }) =>
-                            `text-[#A3A0B0] ${
-                              isActive
-                                ? `bg-[#615E83] text-white px-2 rounded-full`
-                                : ``
-                            } px-2 rounded-full`
-                          }
-                          to={item.path}
-                        >
-                          {item.label}
-                        </NavLink>
-                      ))}
-                    </div>
-                  </details>
+                  {loading ? loadingCard() : errorCard()}
                 </div>
               </div>
             </div>

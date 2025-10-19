@@ -3,10 +3,27 @@ import { IoIosNotifications } from "react-icons/io";
 import { IoIosChatbubbles } from "react-icons/io";
 import { FaAngleDown } from "react-icons/fa";
 
+import FolderSharedIcon from "@mui/icons-material/FolderShared";
+
 const Navbar = ({ options, onSelect, companyIndex }) => {
   return (
     <>
       <div className="navbar bg-white flex justify-between px-4 space-x-2 h-[68px] shadow-md">
+        <div className="flex items-center gap-3 mb-6 p-1.5 m-2">
+          {/* Icon */}
+          <div className="bg-[#007B7F] p-3 rounded-lg flex items-center pt-1.5 justify-center">
+            <FolderSharedIcon />
+          </div>
+
+          {/* Text Section */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">User Directory</h1>
+            <p className="text-gray-500 text-sm">
+              Manage and view all user profiles
+            </p>
+          </div>
+        </div>
+
         {options ? (
           <div className="flex items-center justify-center text-[#272643] font-semibold">
             <img src="/companyBranch.png" alt="" className="w-4" />
