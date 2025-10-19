@@ -32,40 +32,20 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import ErrorIcon from "@mui/icons-material/Error";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers } from "./redux/userSlices/listAllUsers";
-import { Button, IconButton, Tooltip } from "@mui/material";
-
-const master = [
-  { label: "Company Master", path: "/companyMaster" },
-  { label: "Customer Master", path: "/customerMaster" },
-  { label: "Employee Master", path: "/employeeMaster" },
-  { label: "Vehicle Master", path: "/vehicleMaster" },
-  { label: "Spare Parts Master", path: "/sparePartsMaster" },
-  { label: "Accessories Master", path: "/accessoriesMaster" },
-  { label: "Service Master", path: "/serviceMaster" },
-  { label: "Branch Master", path: "/branchMaster" },
-  { label: "Insurance", path: "/insurance" },
-  { label: "Vehicle Transit", path: "/vehicleTransit" },
-  { label: "Spare Part Transit", path: "/sparePartTransit" },
-  { label: "Tax Master", path: "/taxMaster" },
-  { label: "Tenant Master", path: "/TenantMaster" },
-];
-
-const subscriptionManagement = [
-  { label: "Invoices", path: "/invoices" },
-  { label: "Subscription", path: "/subscriptionList" },
-];
+import { Button, Card, IconButton, Tooltip } from "@mui/material";
 
 const Dashboard = () => {
   const [listUsers, setListUsers] = useState([]); // full list
   const [list, setList] = useState([]); // filtered/displayed list
   const [searchInput, setSearchInput] = useState("");
 
-  const [toast, setToast] = useState("");
-  const [page, setPage] = useState(1);
-
   const dispatch = useDispatch();
 
-  const { list: reduxList, loading } = useSelector((state) => state.users);
+  const {
+    list: reduxList,
+    loading,
+    error,
+  } = useSelector((state) => state.users);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -95,19 +75,13 @@ const Dashboard = () => {
     setList(filteredList);
   };
 
+  const onRetry = () => {
+    dispatch(fetchUsers());
+  };
+
   useEffect(() => {
     handleSearch(searchInput);
   }, [searchInput, listUsers]);
-
-  //Pagination function
-  const selectPageHandler = (selectedPage) => {
-    if (
-      selectedPage >= 1 &&
-      selectedPage <= listUsers.length / 12 &&
-      selectedPage !== page
-    );
-    setPage(selectedPage);
-  };
 
   const [uniqueCompanyName, setUniqueCompanyName] = useState([]);
 
@@ -141,15 +115,27 @@ const Dashboard = () => {
   };
 
   const loadingCard = () => (
-    <Button
-      loading
-      loadingPosition="start"
-      startIcon={<SearchIcon />}
-      variant="outlined"
-      sx={{ bgcolor: "white" }}
-    >
-      Save
-    </Button>
+    <div className="flex justify-center items-center my-4">
+      <Button
+        loading
+        loadingPosition="start"
+        disabled
+        sx={{
+          color: "black",
+          borderColor: "black",
+          textTransform: "none",
+          "& .MuiCircularProgress-root": {
+            color: "black", // spinner color
+          },
+          "&.Mui-disabled": {
+            color: "black",
+            borderColor: "black",
+          },
+        }}
+      >
+        Loading user table...
+      </Button>
+    </div>
   );
 
   const successCard = () => (
@@ -223,7 +209,7 @@ const Dashboard = () => {
   );
 
   const errorCard = () => (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-secondary flex items-center justify-center px-4">
+    <main className="min-h-screen  m-15  rounded-2xl flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Error Icon */}
         <div className="flex justify-center mb-8">
@@ -249,41 +235,31 @@ const Dashboard = () => {
             <div className="text-center">
               <div className="inline-block px-4 py-2 bg-red-500/10 rounded-lg border border-red-500/20 mb-4">
                 <p className="text-sm font-mono text-red-600 font-semibold">
-                  Error {errorCode}
+                  Error
                 </p>
               </div>
               <h2 className="text-xl font-semibold text-foreground">
-                {errorMessage}
+                {/* {errorMessage} */}
               </h2>
             </div>
 
             {/* Error Details */}
             <div className="bg-muted/50 rounded-lg p-4 border border-border">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                We encountered an issue while trying to load the user details.
-                This could be due to a temporary network issue or server
-                problem. Please try again or return to the dashboard.
+                We encountered an issue while trying to load the users. This
+                could be due to a temporary network issue or server problem.
+                Please try again after Some time.
               </p>
             </div>
 
             {/* Action Buttons */}
             <div className="space-y-3 pt-4">
-              {onRetry && (
-                <Button
-                  onClick={onRetry}
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground gap-2"
-                >
-                  <RefreshIcon className="h-4 w-4" />
-                  Try Again
-                </Button>
-              )}
               <Button
-                onClick={() => router.push("/")}
-                variant="outline"
-                className="w-full gap-2"
+                onClick={onRetry}
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground gap-2"
               >
-                <HomeIcon className="h-4 w-4" />
-                Back to Dashboard
+                <RefreshIcon className="h-4 w-4" />
+                Try Again
               </Button>
             </div>
 
@@ -306,6 +282,21 @@ const Dashboard = () => {
       </div>
     </main>
   );
+
+  // Derive status
+  const status = loading
+    ? "loading"
+    : error
+    ? "error"
+    : reduxList.length > 0
+    ? "success"
+    : "empty";
+
+  const statusUI = {
+    loading: loadingCard(),
+    error: errorCard(),
+    success: successCard(),
+  };
 
   return (
     <>
@@ -348,10 +339,10 @@ const Dashboard = () => {
                       </option>
                     ))}
                   </select>
-
-                  {loading ? loadingCard() : errorCard()}
                 </div>
               </div>
+
+              <div>{statusUI[status]}</div>
             </div>
           </div>
         </div>
