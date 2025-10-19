@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./Components/Dashboard";
-// import UserCard from "./Components/UserCard";
 import ContactDetailsCard from "./Components/ContactDetailsCard";
 
 function App() {

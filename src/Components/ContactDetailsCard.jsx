@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   Box,
   Card,
@@ -20,7 +21,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import BusinessIcon from "@mui/icons-material/Business";
 import StoreTwoToneIcon from "@mui/icons-material/StoreTwoTone";
 
-import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ErrorIcon from "@mui/icons-material/Error";
 
@@ -34,10 +34,10 @@ const ContactDetailsCard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { userDetails } = useSelector((state) => state.userData); // console.log the updated redux state
+  const { userDetails } = useSelector((state) => state.userData);
 
   useEffect(() => {
-    dispatch(getOneUser(id)); // we make an API call here
+    dispatch(getOneUser(id));
   }, [dispatch, id]);
 
   const onBack = () => {
@@ -163,13 +163,13 @@ const ContactDetailsCard = () => {
 
       <Box
         sx={{
-          width: "95vw", // full viewport width
-          minHeight: "80vh", // full viewport height
+          width: "95vw",
+          minHeight: "80vh",
           backgroundColor: "#fafafa",
           display: "flex",
           flexDirection: {
-            xs: "column", // stack on mobile
-            md: "row", // side-by-side on desktop
+            xs: "column",
+            md: "row",
           },
           gap: 3,
           justifyContent: "space-around",
@@ -337,7 +337,6 @@ const ContactDetailsCard = () => {
               sm: "100%",
               md: "50%",
             },
-            // mt: { xs: 3, md: 0 },
           }}
         >
           <Card

@@ -9,11 +9,9 @@ export const getOneUser = createAsyncThunk(
       const response = await axios.get(
         `https://jsonplaceholder.typicode.com/users/${id}`
       );
-      console.log("hello api");
-      console.log(response, "p[p[p[p[[p[[");
+
       return response?.data; // This will be your payload
     } catch (error) {
-      console.log("error api call");
       return rejectWithValue(error.response?.data || "Error fetching users");
     }
   }

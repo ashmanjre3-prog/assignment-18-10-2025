@@ -1,21 +1,10 @@
 import React from "react";
 
-import { useEffect, useRef, useState } from "react";
-import { RiDeleteBin5Line } from "react-icons/ri";
-import { IoMdSearch } from "react-icons/io";
-import { FiDownload } from "react-icons/fi";
-import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
-import { IoIosArrowForward } from "react-icons/io";
-import { IoIosArrowBack } from "react-icons/io";
-import { GoPencil } from "react-icons/go";
-import { NavLink, useNavigate } from "react-router-dom";
-import Toast from "./Toast/Toast";
-import { IoMdCall } from "react-icons/io";
-import { MdEmail } from "react-icons/md";
-import { RxCross2 } from "react-icons/rx";
-import { FaAngleUp } from "react-icons/fa";
+import { useEffect, useState } from "react";
+
+import { useNavigate } from "react-router-dom";
+
 import Navbar from "./Navbar/Navbar";
-import axios from "axios";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -35,8 +24,8 @@ import { fetchUsers } from "./redux/userSlices/listAllUsers";
 import { Button, Card, IconButton, Tooltip } from "@mui/material";
 
 const Dashboard = () => {
-  const [listUsers, setListUsers] = useState([]); // full list
-  const [list, setList] = useState([]); // filtered/displayed list
+  const [listUsers, setListUsers] = useState([]);
+  const [list, setList] = useState([]);
   const [searchInput, setSearchInput] = useState("");
 
   const dispatch = useDispatch();
@@ -49,16 +38,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     dispatch(fetchUsers());
-  }, [dispatch]); // only run once on mount
+  }, [dispatch]);
 
   useEffect(() => {
     setListUsers(reduxList);
-    setList(reduxList); // initially display full list
+    setList(reduxList);
   }, [reduxList]);
 
   const handleSearch = (searchInput) => {
-    console.log(searchInput, "***********");
-
     if (!searchInput.trim()) {
       setList(listUsers);
       return;
@@ -69,8 +56,6 @@ const Dashboard = () => {
         user.name.toLowerCase().includes(searchInput.toLowerCase()) ||
         user.email.toLowerCase().includes(searchInput.toLowerCase())
     );
-
-    console.log(filteredList, "41524");
 
     setList(filteredList);
   };
@@ -91,14 +76,11 @@ const Dashboard = () => {
   }, [listUsers]);
 
   const handleDropdown = (e) => {
-    console.log(e.target.value, "++++++++++++");
     const selection = e.target.value;
     if (selection.trim() !== "") {
       const filteredList = listUsers.filter(
         (user) => user.company.name === selection
       );
-
-      console.log(filteredList, "41524");
 
       setList(filteredList);
     } else {
@@ -109,8 +91,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const handleNavigation = (id) => {
-    console.log("id is:", id);
-
     navigate(`user/${id}`);
   };
 
@@ -283,7 +263,6 @@ const Dashboard = () => {
     </main>
   );
 
-  // Derive status
   const status = loading
     ? "loading"
     : error
